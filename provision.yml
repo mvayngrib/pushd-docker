@@ -1,0 +1,23 @@
+---
+- hosts: all
+  sudo: yes
+  roles:
+    - role: angstwad.docker_ubuntu
+      docker_group_members: [vagrant]
+      update_docker_package: yes
+
+  tasks:
+  - name: Docker login to registry
+    sudo_user: vagrant
+    shell: >
+      docker login
+      -e {{ lookup('env','DOCKER_EMAIL') }}
+      -p {{ lookup('env','DOCKER_PASSWORD') }}
+      -u {{ lookup('env','DOCKER_USER') }}
+    when: lookup('env','DOCKER_USER') and lookup('env','DOCKER_PASSWORD') and lookup('env','DOCKER_EMAIL')
+
+  - name: Start redis container
+    docker:
+      name: redis
+      image: redis
+      state: started
